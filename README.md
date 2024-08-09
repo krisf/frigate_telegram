@@ -1,5 +1,5 @@
 Requires your Frigate instance to be publicly available, use Caddy. Example:
-```json
+```
 frigate.mydomain.com {
 @auth {
     not path /api/events/*
