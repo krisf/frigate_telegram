@@ -1,3 +1,5 @@
+Requires your Frigate instance to be publicly available, use Caddy
+
 docker-compose example:
 -----------
 
@@ -14,5 +16,5 @@ services:
       MQTT_PORT: 1883
       MQTT_USER: myusername
       MQTT_PASS: mypassword
-      FRIGATE_URL: "http://192.168.0.100:5000"
+      FRIGATE_URL: "https://frigate.mydomain.com"
 ```
