@@ -1,13 +1,13 @@
 Requires your Frigate instance to be publicly available, use Caddy. Example:
 ```
 frigate.mydomain.com {
-@auth {
+  @auth {
     not path /api/events/*
   }
 
   basicauth @auth {
-                myuser $2a$14$_mypasswordhash
-        }
+    myuser $2a$14$_mypasswordhash
+  }
   reverse_proxy 192.168.0.100:5000
 }
 
