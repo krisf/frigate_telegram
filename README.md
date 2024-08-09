@@ -1,4 +1,17 @@
-Requires your Frigate instance to be publicly available, use Caddy
+Requires your Frigate instance to be publicly available, use Caddy. Example:
+```json
+frigate.mydomain.com {
+@auth {
+    not path /api/events/*
+  }
+
+  basicauth @auth {
+                myuser $2a$14$_mypasswordhash
+        }
+  reverse_proxy 192.168.0.100:5000
+}
+
+```
 
 docker-compose example:
 -----------
