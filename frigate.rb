@@ -3,7 +3,7 @@ require 'json'
 require 'telegram/bot'
 
 token = ENV['TELEGRAM_TOKEN']
-chat_id = ENV['TELEGRAM_CHAT_ID']
+chat_id = ENV['TELEGRAM_CHAT_ID'].to_i
 
 mqtt_host = ENV['MQTT_HOST']
 mqtt_port = ENV['MQTT_PORT'].to_i
