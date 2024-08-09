@@ -30,6 +30,5 @@ jobs:
 
    # - name: Wait for Rails to start
    #   run: apt-get install --no-install-recommends -y netcat && sh -c 'until nc -z localhost 3000; do sleep 1; done'
-
     #- name: Run Rails tests
     #  run: docker exec -t ${{ github.sha }} bin/rails test
