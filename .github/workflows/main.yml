@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, develop, main ]
+  pull_request:
+    branches: [ master, develop, main ]
+
+jobs:
+  container-test-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install docker
+      run: |
+        apt-get update && apt-get install --no-install-recommends -y ca-certificates curl gnupg lsb-release sudo
+        curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          apt-get update && apt-get install --no-install-recommends -y docker-ce docker-ce-cli containerd.io
+    - name: Build docker images
+      run: docker build -t ${{ github.sha }} .
+
+    - name: Run Docker container
+      run: docker run -d -p 3000:3000 --name ${{ github.sha }} ${{ github.sha }}
+
+   # - name: Wait for Rails to start
+   #   run: apt-get install --no-install-recommends -y netcat && sh -c 'until nc -z localhost 3000; do sleep 1; done'
+
+    #- name: Run Rails tests
+    #  run: docker exec -t ${{ github.sha }} bin/rails test
