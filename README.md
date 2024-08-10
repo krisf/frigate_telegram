@@ -1,17 +1,4 @@
-Requires your Frigate instance to be publicly available, use Caddy. Example:
-```
-frigate.mydomain.com {
-  @auth {
-    not path /api/events/*
-  }
 
-  basicauth @auth {
-    myuser $2a$14$_mypasswordhash
-  }
-  reverse_proxy 192.168.0.100:5000
-}
-
-```
 
 docker-compose example:
 -----------
@@ -29,5 +16,5 @@ services:
       MQTT_PORT: 1883
       MQTT_USER: myusername
       MQTT_PASS: mypassword
-      FRIGATE_URL: "https://frigate.mydomain.com"
+      FRIGATE_URL: "http://192.168.0.100:5000"
 ```
