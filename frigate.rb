@@ -25,7 +25,6 @@ Telegram::Bot::Client.run(token) do |bot|
         snapshot = "#{frigate_url}/api/events/#{a['before']['id']}/thumbnail.jpg"
         bot.api.send_message(chat_id: chat_id, text: formatted_message)
         bot.api.send_photo(chat_id: chat_id, photo: snapshot, caption: formatted_message, show_caption_above_media: true, disable_notification: true)
-        end
       elsif a['type'] == 'end' && a['has_clip'] == true
         clip = "#{frigate_url}/api/events/#{a['before']['id']}/clip.mp4"
         bot.api.send_video(chat_id: chat_id, video: clip, caption: formatted_message, show_caption_above_media: true, supports_streaming: true, disable_notification: true)
