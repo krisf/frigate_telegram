@@ -54,7 +54,7 @@ Telegram::Bot::Client.run(token) do |bot|
         end
         file.close
         file.unlink    # deletes the temp file
-      elsif (a['type'] == 'end' || a['type'] == 'update') && a['after']['has_clip'] == true !id_list.include?("#{a['before']['id']}_clip")
+      elsif (a['type'] == 'end' || a['type'] == 'update') && a['after']['has_clip'] == true && !id_list.include?("#{a['before']['id']}_clip")
         id_list << "#{a['before']['id']}_clip"
         clip = "#{frigate_url}/api/events/#{a['before']['id']}/clip.mp4"
         file = download_to_tmp(clip)
