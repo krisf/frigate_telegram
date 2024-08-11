@@ -24,7 +24,7 @@ def download_to_tmp(url)
     puts "Failed to download #{url}. Retrying..."
     sleep 1
     count = count + 1
-    exit if count == 4
+    exit if count == 20
     retry
   end
 
@@ -50,7 +50,7 @@ Telegram::Bot::Client.run(token) do |bot|
         #bot.api.send_message(chat_id: chat_id, text: formatted_message)
         file = download_to_tmp(snapshot)
         if file.size > 100 && file.size < 10000000
-          begin; bot.api.send_photo(chat_id: chat_id, photo: Faraday::UploadIO.new(file.path, 'image/jpeg'), caption: formatted_message, show_caption_above_media: true, disable_notification: false); rescue; puts "#{snapshot} failed.";end;
+          bot.api.send_photo(chat_id: chat_id, photo: Faraday::UploadIO.new(file.path, 'image/jpeg'), caption: formatted_message, show_caption_above_media: true, disable_notification: false)
         end
         file.close
         file.unlink    # deletes the temp file
@@ -59,7 +59,7 @@ Telegram::Bot::Client.run(token) do |bot|
         clip = "#{frigate_url}/api/events/#{a['before']['id']}/clip.mp4"
         file = download_to_tmp(clip)
         if file.size > 100 && file.size < 50000000
-          begin; bot.api.send_video(chat_id: chat_id, video: Faraday::UploadIO.new(file.path, 'video/mp4'), caption: formatted_message, show_caption_above_media: true, supports_streaming: true, disable_notification: true) ; rescue; puts "#{clip} failed.";end;
+          bot.api.send_video(chat_id: chat_id, video: Faraday::UploadIO.new(file.path, 'video/mp4'), caption: formatted_message, show_caption_above_media: true, supports_streaming: true, disable_notification: true) 
         elsif file.size > 50000000
           bot.api.send_message(chat_id: chat_id, text: "#{formatted_message}: #{clip}")
         end
