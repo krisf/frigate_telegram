@@ -58,7 +58,8 @@ Telegram::Bot::Client.run(token) do |bot|
             file.unlink    # deletes the temp file
             exit
           end #fork
-        elsif !id_list.include?("#{a['before']['id']}_clip")
+        end
+        if !id_list.include?("#{a['before']['id']}_clip")
           formatted_message = "#{a['before']['camera'].capitalize} - #{a['before']['label'].capitalize} was detected."
           id_list << "#{a['before']['id']}_clip"
           clip = "#{frigate_url}/api/events/#{a['before']['id']}/clip.mp4"
