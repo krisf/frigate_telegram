@@ -46,7 +46,7 @@ Telegram::Bot::Client.run(token) do |bot|
         id_list << a['before']['id']
         formatted_message = "#{a['before']['camera'].capitalize} - #{a['before']['label'].capitalize} was detected."
         snapshot = "#{frigate_url}/api/events/#{a['before']['id']}/thumbnail.jpg"
-        bot.api.send_message(chat_id: chat_id, text: formatted_message)
+        #bot.api.send_message(chat_id: chat_id, text: formatted_message)
         file = download_to_tmp(snapshot)
         if file.size > 100 && file.size < 10000000
           begin; bot.api.send_photo(chat_id: chat_id, photo: Faraday::UploadIO.new(file.path, 'image/jpeg'), caption: formatted_message, show_caption_above_media: true, disable_notification: true); rescue; puts "#{snapshot} failed.";end;
@@ -58,6 +58,8 @@ Telegram::Bot::Client.run(token) do |bot|
         file = download_to_tmp(clip)
         if file.size > 100 && file.size < 50000000
           begin; bot.api.send_video(chat_id: chat_id, video: Faraday::UploadIO.new(file.path, 'video/mp4'), caption: formatted_message, show_caption_above_media: true, supports_streaming: true, disable_notification: true) ; rescue; puts "#{clip} failed.";end;
+        elsif file.size > 50000000
+          bot.api.send_message(chat_id: chat_id, text: "#{formatted_message}: #{clip}")
         end
         file.close
         file.unlink    # deletes the temp file
