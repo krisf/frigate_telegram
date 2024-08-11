@@ -49,7 +49,7 @@ Telegram::Bot::Client.run(token) do |bot|
         #bot.api.send_message(chat_id: chat_id, text: formatted_message)
         file = download_to_tmp(snapshot)
         if file.size > 100 && file.size < 10000000
-          begin; bot.api.send_photo(chat_id: chat_id, photo: Faraday::UploadIO.new(file.path, 'image/jpeg'), caption: formatted_message, show_caption_above_media: true, disable_notification: true); rescue; puts "#{snapshot} failed.";end;
+          begin; bot.api.send_photo(chat_id: chat_id, photo: Faraday::UploadIO.new(file.path, 'image/jpeg'), caption: formatted_message, show_caption_above_media: true, disable_notification: false); rescue; puts "#{snapshot} failed.";end;
         end
         file.close
         file.unlink    # deletes the temp file
