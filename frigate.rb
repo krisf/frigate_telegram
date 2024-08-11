@@ -24,7 +24,7 @@ def download_to_tmp(url)
     puts "Failed to download #{url}. Retrying..."
     sleep 1
     count = count + 1
-    exit if count == 20
+    exit if count == 25
     retry
   end
 
@@ -43,28 +43,37 @@ Telegram::Bot::Client.run(token) do |bot|
   MQTT::Client.connect(host: mqtt_host, port: mqtt_port, username: mqtt_user, password: mqtt_pass) do |c|
     c.get('frigate/events') do |topic,message|
       a = JSON.parse message
-      if a['type'] == 'update' && a['after']['has_clip'] == true && !id_list.include?("#{a['before']['id']}_snap")
-        id_list << "#{a['before']['id']}_snap"
+      if a['before']['has_clip'] == true
         formatted_message = "#{a['before']['camera'].capitalize} - #{a['before']['label'].capitalize} was detected."
-        snapshot = "#{frigate_url}/api/events/#{a['before']['id']}/thumbnail.jpg"
-        #bot.api.send_message(chat_id: chat_id, text: formatted_message)
-        file = download_to_tmp(snapshot)
-        if file.size > 100 && file.size < 10000000
-          bot.api.send_photo(chat_id: chat_id, photo: Faraday::UploadIO.new(file.path, 'image/jpeg'), caption: formatted_message, show_caption_above_media: true, disable_notification: false)
+        if !id_list.include?("#{a['before']['id']}_snap")
+          fork do
+            id_list << "#{a['before']['id']}_snap"
+            snapshot = "#{frigate_url}/api/events/#{a['before']['id']}/thumbnail.jpg"
+            #bot.api.send_message(chat_id: chat_id, text: formatted_message)
+            file = download_to_tmp(snapshot)
+            if file.size > 100 && file.size < 10000000
+              bot.api.send_photo(chat_id: chat_id, photo: Faraday::UploadIO.new(file.path, 'image/jpeg'), caption: formatted_message, show_caption_above_media: true, disable_notification: false)
+            end
+            file.close
+            file.unlink    # deletes the temp file
+            exit
+          end #fork
+        elsif !id_list.include?("#{a['before']['id']}_clip")
+          formatted_message = "#{a['before']['camera'].capitalize} - #{a['before']['label'].capitalize} was detected."
+          id_list << "#{a['before']['id']}_clip"
+          clip = "#{frigate_url}/api/events/#{a['before']['id']}/clip.mp4"
+          fork do
+            file = download_to_tmp(clip)
+            if file.size > 100 && file.size < 50000000
+              bot.api.send_video(chat_id: chat_id, video: Faraday::UploadIO.new(file.path, 'video/mp4'), caption: formatted_message, show_caption_above_media: true, supports_streaming: true, disable_notification: true) 
+            elsif file.size > 50000000
+              bot.api.send_message(chat_id: chat_id, text: "#{formatted_message}: #{clip}")
+            end
+            file.close
+            file.unlink    # deletes the temp file
+            exit
+          end#fork
         end
-        file.close
-        file.unlink    # deletes the temp file
-      elsif (a['type'] == 'end' || a['type'] == 'update') && a['after']['has_clip'] == true && !id_list.include?("#{a['before']['id']}_clip")
-        id_list << "#{a['before']['id']}_clip"
-        clip = "#{frigate_url}/api/events/#{a['before']['id']}/clip.mp4"
-        file = download_to_tmp(clip)
-        if file.size > 100 && file.size < 50000000
-          bot.api.send_video(chat_id: chat_id, video: Faraday::UploadIO.new(file.path, 'video/mp4'), caption: formatted_message, show_caption_above_media: true, supports_streaming: true, disable_notification: true) 
-        elsif file.size > 50000000
-          bot.api.send_message(chat_id: chat_id, text: "#{formatted_message}: #{clip}")
-        end
-        file.close
-        file.unlink    # deletes the temp file
       else
         puts "skipped message, not new"
       end
