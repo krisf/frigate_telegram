@@ -21,6 +21,7 @@ def download_to_tmp(url)
   begin
     resp = HTTParty.get(url)
   rescue
+    puts "Failed to download #{url}. Retrying..."
     sleep 1
     count = count + 1
     exit if count == 4
@@ -42,8 +43,8 @@ Telegram::Bot::Client.run(token) do |bot|
   MQTT::Client.connect(host: mqtt_host, port: mqtt_port, username: mqtt_user, password: mqtt_pass) do |c|
     c.get('frigate/events') do |topic,message|
       a = JSON.parse message
-      if a['type'] == 'update' && a['after']['has_clip'] == true && !id_list.include?(a['before']['id'])
-        id_list << a['before']['id']
+      if a['type'] == 'update' && a['after']['has_clip'] == true && !id_list.include?("#{a['before']['id']}_snap")
+        id_list << "#{a['before']['id']}_snap"
         formatted_message = "#{a['before']['camera'].capitalize} - #{a['before']['label'].capitalize} was detected."
         snapshot = "#{frigate_url}/api/events/#{a['before']['id']}/thumbnail.jpg"
         #bot.api.send_message(chat_id: chat_id, text: formatted_message)
@@ -53,7 +54,8 @@ Telegram::Bot::Client.run(token) do |bot|
         end
         file.close
         file.unlink    # deletes the temp file
-      elsif a['type'] == 'end' && a['after']['has_clip'] == true
+      elsif (a['type'] == 'end' || a['type'] == 'update') && a['after']['has_clip'] == true !id_list.include?("#{a['before']['id']}_clip")
+        id_list << "#{a['before']['id']}_clip"
         clip = "#{frigate_url}/api/events/#{a['before']['id']}/clip.mp4"
         file = download_to_tmp(clip)
         if file.size > 100 && file.size < 50000000
