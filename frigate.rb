@@ -64,6 +64,7 @@ Telegram::Bot::Client.run(token) do |bot|
           id_list << "#{a['before']['id']}_clip"
           clip = "#{frigate_url}/api/events/#{a['before']['id']}/clip.mp4"
           fork do
+            sleep 15
             file = download_to_tmp(clip)
             if file.size > 100 && file.size < 50000000
               bot.api.send_video(chat_id: chat_id, video: Faraday::UploadIO.new(file.path, 'video/mp4'), caption: formatted_message, show_caption_above_media: true, supports_streaming: true, disable_notification: true) 
