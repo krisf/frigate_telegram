@@ -60,7 +60,7 @@ Telegram::Bot::Client.run(token) do |bot|
             file.unlink    # deletes the temp file
             exit
           end #fork
-          Process.detatch(snap_fork)
+          Process.detach(snap_fork)
         end
         if !id_list.include?("#{a['before']['id']}_clip")
           formatted_message = "#{a['before']['camera'].capitalize} - #{a['before']['label'].capitalize} was detected."
@@ -78,7 +78,7 @@ Telegram::Bot::Client.run(token) do |bot|
             file.unlink    # deletes the temp file
             exit
           end#fork
-          Process.detatch(clip_fork)
+          Process.detach(clip_fork)
         end
       else
         puts "skipped message, not new"
