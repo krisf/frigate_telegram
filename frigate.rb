@@ -48,7 +48,7 @@ Telegram::Bot::Client.run(token) do |bot|
       if a['before']['has_clip'] == true
         formatted_message = "#{a['before']['camera'].capitalize} - #{a['before']['label'].capitalize} was detected."
         if !id_list.include?("#{a['before']['id']}_snap")
-          fork do
+          threadA = Thread.fork do
             id_list << "#{a['before']['id']}_snap"
             snapshot = "#{frigate_url}/api/events/#{a['before']['id']}/thumbnail.jpg"
             #bot.api.send_message(chat_id: chat_id, text: formatted_message)
@@ -65,7 +65,7 @@ Telegram::Bot::Client.run(token) do |bot|
           formatted_message = "#{a['before']['camera'].capitalize} - #{a['before']['label'].capitalize} was detected."
           id_list << "#{a['before']['id']}_clip"
           clip = "#{frigate_url}/api/events/#{a['before']['id']}/clip.mp4"
-          fork do
+          threadB = Thread.fork do
             sleep telegram_clip_wait_time.to_i
             file = download_to_tmp(clip)
             if file.size > 100 && file.size < 50000000
@@ -78,6 +78,8 @@ Telegram::Bot::Client.run(token) do |bot|
             exit
           end#fork
         end
+        threadA.join
+        threadB.join
       else
         puts "skipped message, not new"
       end
